@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendario Hot 3.0 🔥</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(to right, #ffccff, #ff99cc);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      animation: fadeIn 1s ease-in;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #ff3399;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input, select, textarea, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 10px;
+    }
+
+    button {
+      background-color: #ff3399;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e60073;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      background: #ffe6f0;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    li span.delete {
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #stats {
+      background: #ffe6f0;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    #badgeContainer {
+      background-color: gold;
+      text-align: center;
+      padding: 20px;
+      border-radius: 15px;
+      margin-top: 20px;
+      animation: pop 0.5s ease-out;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calendario Hot 3.0 🔥</h1>
+
+    <div class="form">
+      <label for="date">Data:</label>
+      <input type="date" id="date">
+
+      <label for="event">Evento:</label>
+      <select id="event">
+        <option value="sega">🖐️ Ho fatto una sega</option>
+        <option value="ditalino">👩‍🦰 Lei ha fatto un ditalino</option>
+        <option value="scopata">🍑 Abbiamo scopato</option>
+        <option value="preliminari">🛁 Preliminari</option>
+      </select>
+
+      <label for="note">Note:</label>
+      <textarea id="note" rows="3" placeholder="Aggiungi delle note (facoltativo)"></textarea>
+
+      <button onclick="saveEvent()">Salva evento</button>
+    </div>
+
+    <h2>Storico eventi</h2>
+    <ul id="eventsList"></ul>
+
+    <h2>Statistiche</h2>
+    <div id="stats">
+      <p>🖐️ Seghe: <span id="segaCount">0</span></p>
+      <p>👩‍🦰 Ditalini: <span id="ditalinoCount">0</span></p>
+      <p>🍑 Scopate: <span id="scopataCount">0</span></p>
+      <p>🛁 Preliminari: <span id="preliminariCount">0</span></p>
+    </div>
+
+    <canvas id="chart" width="400" height="400"></canvas>
+
+    <div id="badgeContainer" class="hidden">
+      🎖️ <h3 id="badgeMessage"></h3>
+    </div>
+  </div>
+
+  <audio id="rewardSound" src="https://www.soundjay.com/button/beep-01a.mp3" preload="auto"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let stats = {
+      sega: 0,
+      ditalino: 0,
+      scopata: 0,
+      preliminari: 0
+    };
+
+    function saveEvent() {
+      const date = document.getElementById('date').value;
+      const event = document.getElementById('event').value;
+      const note = document.getElementById('note').value;
+
+      if (!date || !event) {
+        alert('Compila tutti i campi!');
+        return;
+      }
+
+      const eventText = {
+        sega: '🖐️ Ho fatto una sega',
+        ditalino: '👩‍🦰 Lei ha fatto un ditalino',
+        scopata: '🍑 Abbiamo scopato',
+        preliminari: '🛁 Preliminari'
+      };
+
+      const events = JSON.parse(localStorage.getItem('hotCalendarEvents')) || [];
+      events.unshift({ date, eventText: eventText[event], note });  // Aggiungi all'inizio per mettere l'evento più recente in cima
+
+      // Aggiungi l'evento alla lista HTML
+      const eventsList = document.getElementById('eventsList');
+      const newItem = document.createElement('li');
+      newItem.innerHTML = `${date}: ${eventText[event]} ${note ? `- Nota: ${note}` : ''} <span class="delete" onclick="deleteEvent(this)">❌</span>`;
+      eventsList.insertBefore(newItem, eventsList.firstChild);  // Inserisci il nuovo evento all'inizio
+
+      // Aggiorna le statistiche
+      stats[event]++;
+      updateStats();
+      saveToLocalStorage(events);
+      updateChart();
+      checkBadges();
+      rewardSound.play();
+    }
+
+    function deleteEvent(element) {
+      const item = element.parentElement;
+      const text = item.textContent;
+
+      if (text.includes('sega')) stats.sega--;
+      if (text.includes('ditalino')) stats.ditalino--;
+      if (text.includes('scopato')) stats.scopata--;
+      if (text.includes('preliminari')) stats.preliminari--;
+
+      item.remove();
+      updateStats();
+      saveToLocalStorage();
+      updateChart();
+    }
+
+    function updateStats() {
+      document.getElementById('segaCount').textContent = stats.sega;
+      document.getElementById('ditalinoCount').textContent = stats.ditalino;
+      document.getElementById('scopataCount').textContent = stats.scopata;
+      document.getElementById('preliminariCount').textContent = stats.preliminari;
+    }
+
+    function saveToLocalStorage(events = []) {
+      localStorage.setItem('hotCalendarEvents', JSON.stringify(events));
+      localStorage.setItem('hotCalendarStats', JSON.stringify(stats));
+    }
+
+    function loadFromLocalStorage() {
+      const events = JSON.parse(localStorage.getItem('hotCalendarEvents')) || [];
+      const eventsList = document.getElementById('eventsList');
+
+      // Ordina gli eventi dalla data più vecchia alla più recente
+      events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      events.forEach(event => {
+        const newItem = document.createElement('li');
+        newItem.innerHTML = `${event.date}: ${event.eventText} ${event.note ? `- Nota: ${event.note}` : ''} <span class="delete" onclick="deleteEvent(this)">❌</span>`;
+        eventsList.appendChild(newItem);
+      });
+
+      stats = JSON.parse(localStorage.getItem('hotCalendarStats')) || stats;
+      updateStats();
+    }
+
+    let chart;
+    function createChart() {
+      const ctx = document.getElementById('chart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Seghe', 'Ditalini', 'Scopate', 'Preliminari'],
+          datasets: [{
+            data: [stats.sega, stats.ditalino, stats.scopata, stats.preliminari],
+            backgroundColor: ['#ff9999', '#ff66b2', '#ff33cc', '#ffcc66']
+          }]
+        }
+      });
+    }
+
+    function updateChart() {
+      if (chart) {
+        chart.data.datasets[0].data = [stats.sega, stats.ditalino, stats.scopata, stats.preliminari];
+        chart.update();
+      }
+    }
+
+    function checkBadges() {
+      const badgeContainer = document.getElementById('badgeContainer');
+      const badgeMessage = document.getElementById('badgeMessage');
+      let showBadge = false;
+      let badgeText = '';
+
+      if (stats.sega >= 10 && stats.sega % 10 === 0) {
+        badgeText = `🖐️ Wow! ${stats.sega} Seghe! Leggenda!`;
+        showBadge = true;
+      } else if (stats.ditalino >= 5 && stats.ditalino % 5 === 0) {
+        badgeText = `👩‍🦰 Grande! ${stats.ditalino} Ditalini raggiunti!`;
+        showBadge = true;
+      } else if (stats.scopata >= 3 && stats.scopata % 3 === 0) {
+        badgeText = `🍑 ${stats.scopata} Scopate! Macchina da guerra!`;
+        showBadge = true;
+      } else if (stats.preliminari >= 3 && stats.preliminari % 3 === 0) {
+        badgeText = `🛁 Preliminari! Grande iniziativa!`;
+        showBadge = true;
+      }
+
+      if (showBadge) {
+        badgeContainer.classList.remove('hidden');
+        badgeMessage.textContent = badgeText;
+      } else {
+        badgeContainer.classList.add('hidden');
+      }
+    }
+
+    window.onload = () => {
+      loadFromLocalStorage();
+      createChart();
+      checkBadges();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(to right, #ffccff, #ff99cc);
+    margin: 0;
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    animation: fadeIn 1s ease-in;
+  }
+  
+  h1, h2 {
+    text-align: center;
+    color: #ff3399;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  input, select, button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+  
+  button {
+    background-color: #ff3399;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #e60073;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  li {
+    background: #ffe6f0;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  li span.delete {
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  #stats {
+    background: #ffe6f0;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  
+  #badgeContainer {
+    background-color: gold;
+    text-align: center;
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+    animation: badgePop 0.7s ease-out;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  #badgeContainer.hidden {
+    display: none;
+  }
+  
+  #badgeMessage {
+    color: #ff3399;
+    font-size: 18px;
+    font-weight: bold;
+    animation: textGlow 1.5s ease-in-out infinite alternate;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  @keyframes badgePop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  @keyframes textGlow {
+    0% { color: #ff3399; text-shadow: 0 0 10px #ff3399, 0 0 20px #ff3399; }
+    100% { color: #ff66b2; text-shadow: 0 0 10px #ff66b2, 0 0 20px #ff66b2; }
+  }
+  
